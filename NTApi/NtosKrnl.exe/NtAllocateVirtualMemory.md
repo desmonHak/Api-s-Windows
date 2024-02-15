@@ -45,14 +45,7 @@ Puntero a una variable que recibirá el tamaño real, en bytes, de la región as
 Máscara de bits que contiene marcas que especifican el tipo de asignación que se va a realizar para la región de páginas especificada. En la tabla siguiente se describen las marcas más comunes. Consulte VirtualAlloc para obtener una lista completa de las posibles marcas y descripciones.
 
 
-<style>
-    pre {
-        background-color: lavender;
-        padding: 10px;
-        border-radius: 5px;
-    }
-</style>
-<pre class="highlight">
+<pre style="background-color: lavender; padding: 10px; border-radius: 5px;">
 Nota
 Se debe establecer uno de MEM_COMMIT, MEM_RESET o MEM_RESERVE.
 </pre>
