@@ -103,7 +103,7 @@ Al crear una región que será ejecutable, el programa de llamada asume la respo
 | | |
 | :-------------------------------- | -------------------------------------- |
 | **Cliente mínimo compatible** | Windows XP [aplicaciones de escritorio | aplicaciones para UWP] |
-| **Servidor mínimo compatible	** | Windows Server 2003 [aplicaciones de escritorio | aplicaciones para UWP] |
+| **Servidor mínimo compatible** | Windows Server 2003 [aplicaciones de escritorio | aplicaciones para UWP] |
 | **Plataforma de destino** | Windows |
 | **Encabezado** | memoryapi.h (incluya Windows.h, Memoryapi.h) |
 | **Library** | onecore.lib |
