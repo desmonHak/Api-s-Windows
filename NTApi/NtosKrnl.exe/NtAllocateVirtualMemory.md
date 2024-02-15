@@ -2,7 +2,7 @@
 
 ---
 
-###[NtAllocateVirtualMemory Microsoft DOC](https://learn.microsoft.com/es-es/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntallocatevirtualmemory)
+### [NtAllocateVirtualMemory Microsoft DOC](https://learn.microsoft.com/es-es/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntallocatevirtualmemory)
 
 
 La rutina NtAllocateVirtualMemory reserva, confirma o ambas, una región de páginas dentro del espacio de direcciones virtuales en modo de usuario de un proceso especificado.
