@@ -58,6 +58,8 @@ Una máscara de bits que contiene indicadores que describen el tipo de operació
 
 ## Valor devuelto
 
+NtFreeVirtualMemory devuelve STATUS_SUCCESS o un código de error. Los posibles códigos de error son los siguientes.
+
 |                                 |                                                                                                                                         |
 | :------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
 | **STATUS_ACCESS_DENIED**        | Un proceso ha solicitado acceso a un objeto, pero no se le han concedido esos derechos de acceso.                                       |
