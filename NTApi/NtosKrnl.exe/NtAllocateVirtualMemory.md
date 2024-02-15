@@ -109,7 +109,7 @@ Cada página del espacio de direcciones virtuales del proceso se encuentra en un
 
 ---
 
-### Example 1
+### [Example 1](./NtAllocateVirtualMemory/example1.c)
 
 Ejecutar shellcode reservando memoria en el proceso actual con permisos de lectura, escritura y ejecucion
 
