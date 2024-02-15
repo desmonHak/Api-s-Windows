@@ -23,7 +23,7 @@ __kernel_entry NTSYSCALLAPI NTSTATUS NtAllocateVirtualMemory(
 
 ---
 
-### Parámetros
+## Parámetros
 
 `[in] ProcessHandle`
 
@@ -43,7 +43,7 @@ Puntero a una variable que recibirá el tamaño real, en bytes, de la región as
 
 `[in] AllocationType`
 
-Máscara de bits que contiene marcas que especifican el tipo de asignación que se va a realizar para la región de páginas especificada. En la tabla siguiente se describen las marcas más comunes. Consulte VirtualAlloc para obtener una lista completa de las posibles marcas y descripciones.
+Máscara de bits que contiene marcas que especifican el tipo de asignación que se va a realizar para la región de páginas especificada. En la tabla siguiente se describen las marcas más comunes. Consulte [VirtualAlloc](../../WinApi/kernelbase.dll/VirtualAlloc.md) para obtener una lista completa de las posibles marcas y descripciones.
 
 <pre style="background-color: lavender; padding: 10px; border-radius: 5px;">
 Nota
@@ -55,7 +55,7 @@ Se debe establecer uno de MEM_COMMIT, MEM_RESET o MEM_RESERVE.
 | MEM_COMMIT             | La región especificada de páginas se va a confirmar.                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | MEM_RESERVE            | La región especificada de las páginas se va a reservar.                                                                                                                                                                                                                                                                                                                                                                                                               |
 | MEM_RESET              | Restablezca el estado de la región especificada para que, si las páginas están en el archivo de paginación, se descartan y se traen páginas de ceros. Si las páginas están en memoria y modificadas, se marcan como no modificadas para que no se escriban en el archivo de paginación. El contenido no está a cero. El parámetro Protect no se usa, pero debe establecerse en un valor válido. Si se establece MEM_RESET, no se puede establecer ninguna otra marca. |
-| Otras marcas (MEM_XXX) | Consulte [VirtualAlloc](https://learn.microsoft.com/es-es/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntallocatevirtualmemory)                                                                                                                                                                                                                                                                                                                                        |
+| Otras marcas (MEM_XXX) | Consulte [VirtualAlloc](../../WinApi/kernelbase.dll/VirtualAlloc.md)                                                                                                                                                                                                                                                                                                                                      |
 
 `[in] Protect`
 Máscara de bits que contiene marcas de protección de páginas que especifican la protección deseada para la región confirmada de páginas. En la tabla siguiente se describen estas marcas.

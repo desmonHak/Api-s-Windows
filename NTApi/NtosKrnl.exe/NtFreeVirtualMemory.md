@@ -21,7 +21,7 @@ __kernel_entry NTSYSCALLAPI NTSTATUS NtFreeVirtualMemory(
 
 ---
 
-### Parámetros
+## Parámetros
 
 `[in] ProcessHandle`
 
