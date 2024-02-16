@@ -120,24 +120,24 @@ NTSTATUS __stdcall NtAllocateVirtualMemory(
     ULONG     AllocationType,
     ULONG     Protect
 ){
-    uint64_t v8 = 0;                               // r14
-    char PreviousMode;                             // bl
-    int64_t _BaseAddress_;                         // rcx
-    int64_t v11;                                   // rcx
-    PVOID v12;                                     // rdi
-    int64_t v13;                                   // rsi
-    NTSTATUS VirtualMemoryPrepare;                 // ebx // codigo de estado
+    uint64_t  v8 = 0;                               // r14
+    char      PreviousMode;                         // bl
+    int64_t   _BaseAddress_;                        // rcx
+    int64_t   variable_muerta0;                     // rcx                      // codigo muerto
+    PVOID     _BaseAddress_;                        // rdi
+    int64_t   _RegionSize_;                         // rsi
+    NTSTATUS  VirtualMemoryPrepare;                 // ebx // codigo de estado
 
-    uint8_t PreviousModeCurrentThread;     // [rsp+70h] [rbp-138h]
-    uint64_t v17;                          // [rsp+78h] [rbp-130h] BYREF
-    PVOID v18;                                     // [rsp+80h] [rbp-128h] BYREF
-    PVOID v19 = 0;                                 // [rsp+88h] [rbp-120h]
-    ULONG_PTR v20 = 0;                             // [rsp+90h] [rbp-118h]
-    PVOID Object[3];                               // [rsp+98h] [rbp-110h] BYREF
-    int64_t v22[10];                               // [rsp+B0h] [rbp-F8h] BYREF
-    int64_t v23[16];                               // [rsp+100h] [rbp-A8h] BYREF
-    HANDLE _ProcessHandle_ = (int)ProcessHandle;   // [rsp+1B0h] [rbp+8h]
-    ULONG_PTR _ZeroBits_ = ZeroBits;               // [rsp+1C0h] [rbp+18h]
+    uint8_t   PreviousModeCurrentThread;            // [rsp+70h] [rbp-138h]
+    uint64_t  v17;                                  // [rsp+78h] [rbp-130h] BYREF
+    PVOID     v18;                                  // [rsp+80h] [rbp-128h] BYREF
+    PVOID     variable_muerta1 = 0;                 // [rsp+88h] [rbp-120h]      // codigo muerto
+    ULONG_PTR variable_muerta2 = 0;                 // [rsp+90h] [rbp-118h]      // codigo muerto
+    PVOID     Object[3];                            // [rsp+98h] [rbp-110h] BYREF
+    int64_t   v22[10];                              // [rsp+B0h] [rbp-F8h] BYREF
+    int64_t   v23[16];                              // [rsp+100h] [rbp-A8h] BYREF
+    HANDLE    _ProcessHandle_ = (int)ProcessHandle; // [rsp+1B0h] [rbp+8h]
+    ULONG_PTR _ZeroBits_ = ZeroBits;                // [rsp+1C0h] [rbp+18h]
 
     memset(v22, 0, 0x48);                              // poner la memoria a 0
     PreviousMode = KeGetCurrentThread()->PreviousMode; // obtener el modo anterior del hilo actual
@@ -147,16 +147,18 @@ NTSTATUS __stdcall NtAllocateVirtualMemory(
         _BaseAddress_ = (int64_t)BaseAddress;
 
         if ( (uint64_t)BaseAddress >= 0x7FFFFFFF0000 ) _BaseAddress_ = 0x7FFFFFFF0000;
-        *(_QWORD *)_BaseAddress_ = *(_QWORD *)_BaseAddress_;   // codigo muerto
+        *(_QWORD *)_BaseAddress_ = *(_QWORD *)_BaseAddress_;      // codigo muerto
+        
         _RegionSize_ = (int64_t)RegionSize;                     
 
-        if ( (uint64_t)RegionSize >= 0x7FFFFFFF0000 ) v11 = 0x7FFFFFFF0000;
-        *(_QWORD *)v11 = *(_QWORD *)v11;                        // codigo muerto
+        if ( (uint64_t)RegionSize >= 0x7FFFFFFF0000 ) variable_muerta0 = 0x7FFFFFFF0000; // codigo muerto
+        *(_QWORD *)variable_muerta0 = *(_QWORD *)variable_muerta0; // codigo muerto
     }
-    v12 = *BaseAddress;
-    v19 = *BaseAddress;
-    v13 = *RegionSize;
-    v20 = *RegionSize;
+    _BaseAddress_    = *BaseAddress;
+    variable_muerta1 = *BaseAddress; // codigo muerto
+    _RegionSize_     = *RegionSize;
+    variable_muerta2 = *RegionSize;  // codigo muerto
+
     LODWORD(v22[4]) = AllocationType & 0x7F;
     if ( (AllocationType & 0x44000) != 0 ) return STATUS_INVALID_PARAMETER; // return 0xc000000d(-1073741811)
     memset(v23, 0, sizeof(v23));                        
@@ -165,9 +167,9 @@ NTSTATUS __stdcall NtAllocateVirtualMemory(
     v17 = 0;
     VirtualMemoryPrepare = MiAllocateVirtualMemoryPrepare(
                             _ProcessHandle_,
-                            (DWORD)v12,
+                            (DWORD)_BaseAddress_,
                             _ZeroBits_,
-                            v13,
+                            _RegionSize_,
                             AllocationType & 0xFFFFFF80,
                             Protect,
                             (int64_t)v22,
@@ -207,10 +209,10 @@ NTSTATUS __stdcall NtAllocateVirtualMemory(
             VirtualMemoryPrepare = MiAllocateVirtualMemory(v23, v8, &v18);
             if ( VirtualMemoryPrepare >= 0 )
             {
-            v12 = v18;
-            v19 = v18;
-            v13 = v23[3];
-            v20 = v23[3];
+                _BaseAddress_ = v18;
+                variable_muerta1 = v18;     // codigo muerto
+                _RegionSize_ = v23[3];
+                variable_muerta2 = v23[3];  // codigo muerto
             }
         }
         LABEL_13:
@@ -218,11 +220,37 @@ NTSTATUS __stdcall NtAllocateVirtualMemory(
 
             LABEL_14:
                 if ( v8 >= 2 ) PsDereferencePartition(v8);
-                if ( Object[0] ) ObfDereferenceObjectWithTag(Object[0], 0x6D566D4Du);
+
+                // si el contador del objeto no es nulo, se decrementa 
+                if ( Object[0] ) ObfDereferenceObjectWithTag(Object[0], 0x6D566D4D);
+                /*
+                    Las regiones de memoria son creados como objetos del kernel donde este le sigue y estan gobernados bajo
+                    el tag 0x6D566D4D o MmVm
+
+                    Mm = Memory Manager ?
+                    Vm = Virtual Memory ?
+
+                    https://learn.microsoft.com/es-es/windows-hardware/drivers/kernel/object-reference-tracing-with-tags
+
+                    https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/wdm/nf-wdm-obdereferenceobjectwithtag
+
+                    void ObDereferenceObjectWithTag(
+                        [in]  a,
+                        [in]  t
+                    );
+
+                    La rutina ObDereferenceObjectWithTag disminuye el recuento de referencias del objeto especificado y escribe un valor de etiqueta de cuatro bytes en el objeto para soportar el rastreo de referencias de objetos.
+
+                    [in] a
+                    Un puntero al objeto. La persona que llama obtiene este puntero cuando crea el objeto, o de una llamada previa a la rutina ObReferenceObjectByHandleWithTag después de abrir el objeto.
+
+                    [in] t
+                    Especifica un valor de etiqueta personalizado de cuatro bytes. Para más información, consulte la siguiente sección Observaciones.
+                 */
                 if ( VirtualMemoryPrepare >= 0 )
                 {
-                    *BaseAddress = v12;
-                    *RegionSize = v13;
+                    *BaseAddress = _BaseAddress_;
+                    *RegionSize = _RegionSize_;
                 }
                 return VirtualMemoryPrepare;
 }
