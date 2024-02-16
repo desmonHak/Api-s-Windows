@@ -13,10 +13,6 @@ tipos de datos de WinApi a GO:
 | INT16         |   int16 |
 | INT32         |   int32 |
 | INT64         |   int64 |
-| INT8          |    int8 |
-| INT16         |   int16 |
-| INT32         |   int32 |
-| INT64         |   int64 |
 | BOOL          |  uint32 |
 | BOOLEAN       |    byte |
 | BYTE          |    byte |
