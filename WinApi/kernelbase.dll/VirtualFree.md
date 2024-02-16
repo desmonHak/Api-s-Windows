@@ -105,7 +105,7 @@ BOOL __stdcall VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD dwFreeType)
 
     if ( 
         (dwFreeType & 0xFFFF3FFC) != 0 ||  
-        (dwFreeType & 0x8003) == 0x8000 && // (dwFreeType & MEM_RELEASE) == 0x8000
+        (dwFreeType & 0x8003) == 0x8000 && // (dwFreeType & 0x8003) == MEM_RELEASE
         dwSize   
     ) {
         // Se ha pasado un parámetro no válido a un servicio o función.
@@ -141,8 +141,6 @@ BOOL __stdcall VirtualFree(LPVOID lpAddress, SIZE_T dwSize, DWORD dwFreeType)
 
 ---
 
-
----
 ### [Example 1](./VirtualAlloc/example1.c)
 
 Reservar una pagina de memoria:
