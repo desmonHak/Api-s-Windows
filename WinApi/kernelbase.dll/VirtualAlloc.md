@@ -95,7 +95,7 @@ Para ejecutar código generado dinámicamente, use VirtualAlloc para asignar mem
 
 La función VirtualAlloc se puede usar para reservar una región [de extensiones de ventanas de direcciones](https://learn.microsoft.com/es-es/windows/win32/memory/address-windowing-extensions) (AWE) de memoria dentro del espacio de direcciones virtuales de un proceso especificado. A continuación, esta región de memoria se puede usar para asignar páginas físicas hacia y fuera de la memoria virtual según lo requiera la aplicación. Los valores MEM_PHYSICAL y MEM_RESERVE deben establecerse en el parámetro AllocationType . No se debe establecer el valor de MEM_COMMIT . La protección de páginas debe establecerse en PAGE_READWRITE.
 
-La función [VirtualFree](Poner enlace) puede descommitir una página confirmada, liberar el almacenamiento de la página, o puede descommitir y liberar simultáneamente una página confirmada. También puede liberar una página reservada, por lo que es una página gratuita.
+La función [VirtualFree](./VirtualFree.md) puede descommitir una página confirmada, liberar el almacenamiento de la página, o puede descommitir y liberar simultáneamente una página confirmada. También puede liberar una página reservada, por lo que es una página gratuita.
 
 Al crear una región que será ejecutable, el programa de llamada asume la responsabilidad de garantizar la coherencia de caché a través de una llamada adecuada a [FlushInstructionCache](Poner enlace) una vez que se haya establecido el código. De lo contrario, los intentos de ejecutar código fuera de la región recién ejecutable pueden producir resultados imprevisibles.
 

